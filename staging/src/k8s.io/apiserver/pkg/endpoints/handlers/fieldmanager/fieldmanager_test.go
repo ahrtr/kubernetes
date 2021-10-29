@@ -19,7 +19,6 @@ package fieldmanager
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"reflect"
@@ -393,7 +392,7 @@ func TestApplyDoesNotStripLabels(t *testing.T) {
 }
 
 func getObjectBytes(file string) []byte {
-	s, err := ioutil.ReadFile(file)
+	s, err := os.ReadFile(file)
 	if err != nil {
 		panic(err)
 	}

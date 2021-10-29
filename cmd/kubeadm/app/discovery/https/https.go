@@ -17,7 +17,6 @@ limitations under the License.
 package https
 
 import (
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -39,7 +38,7 @@ func RetrieveValidatedConfigInfo(httpsURL, clustername string, discoveryTimeout 
 	}
 	defer response.Body.Close()
 
-	kubeconfig, err := ioutil.ReadAll(response.Body)
+	kubeconfig, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}

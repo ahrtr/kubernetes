@@ -20,7 +20,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"io/ioutil"
 	"net"
 	"testing"
 
@@ -36,7 +35,7 @@ func TestMakeCSR(t *testing.T) {
 	dnsSANs := []string{"localhost"}
 	ipSANs := []net.IP{netutils.ParseIPSloppy("127.0.0.1")}
 
-	keyData, err := ioutil.ReadFile(keyFile)
+	keyData, err := os.ReadFile(keyFile)
 	if err != nil {
 		t.Fatal(err)
 	}

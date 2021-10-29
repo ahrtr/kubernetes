@@ -19,7 +19,6 @@ package rest
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
@@ -39,7 +38,7 @@ func TestGenericHttpResponseChecker(t *testing.T) {
 	}{
 		{
 			resp: &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Success")),
+				Body:       io.NopCloser(bytes.NewBufferString("Success")),
 				StatusCode: http.StatusOK,
 			},
 			expectError: false,
@@ -47,7 +46,7 @@ func TestGenericHttpResponseChecker(t *testing.T) {
 		},
 		{
 			resp: &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Invalid request.")),
+				Body:       io.NopCloser(bytes.NewBufferString("Invalid request.")),
 				StatusCode: http.StatusBadRequest,
 			},
 			expectError: true,
@@ -56,7 +55,7 @@ func TestGenericHttpResponseChecker(t *testing.T) {
 		},
 		{
 			resp: &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Pod does not exist.")),
+				Body:       io.NopCloser(bytes.NewBufferString("Pod does not exist.")),
 				StatusCode: http.StatusInternalServerError,
 			},
 			expectError: true,
@@ -82,7 +81,7 @@ func TestGenericHttpResponseCheckerLimitReader(t *testing.T) {
 	responseChecker := NewGenericHttpResponseChecker(v1.Resource("pods"), "foo")
 	excessedString := strings.Repeat("a", (maxReadLength + 10000))
 	resp := &http.Response{
-		Body:       ioutil.NopCloser(bytes.NewBufferString(excessedString)),
+		Body:       io.NopCloser(bytes.NewBufferString(excessedString)),
 		StatusCode: http.StatusBadRequest,
 	}
 	err := responseChecker.Check(resp)

@@ -18,7 +18,6 @@ package app
 
 import (
 	"errors"
-	"io/ioutil"
 	"strconv"
 	"strings"
 
@@ -132,7 +131,7 @@ func isSysFSWritable() (bool, error) {
 }
 
 func readIntStringFile(filename string) (int, error) {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		return -1, err
 	}
@@ -140,5 +139,5 @@ func readIntStringFile(filename string) (int, error) {
 }
 
 func writeIntStringFile(filename string, value int) error {
-	return ioutil.WriteFile(filename, []byte(strconv.Itoa(value)), 0640)
+	return os.WriteFile(filename, []byte(strconv.Itoa(value)), 0640)
 }

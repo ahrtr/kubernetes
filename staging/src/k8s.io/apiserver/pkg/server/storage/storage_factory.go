@@ -19,7 +19,6 @@ package storage
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"strings"
 
 	"k8s.io/klog/v2"
@@ -308,7 +307,7 @@ func (s *DefaultStorageFactory) Backends() []Backend {
 		}
 	}
 	if len(s.StorageConfig.Transport.TrustedCAFile) > 0 {
-		if caCert, err := ioutil.ReadFile(s.StorageConfig.Transport.TrustedCAFile); err != nil {
+		if caCert, err := os.ReadFile(s.StorageConfig.Transport.TrustedCAFile); err != nil {
 			klog.Errorf("failed to read ca file while getting backends: %s", err)
 		} else {
 			caPool := x509.NewCertPool()

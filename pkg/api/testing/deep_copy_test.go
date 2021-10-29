@@ -17,7 +17,6 @@ limitations under the License.
 package testing
 
 import (
-	"io/ioutil"
 	"testing"
 	"time"
 
@@ -140,7 +139,7 @@ func BenchmarkPodCopy(b *testing.B) {
 }
 
 func BenchmarkNodeCopy(b *testing.B) {
-	data, err := ioutil.ReadFile("node_example.json")
+	data, err := os.ReadFile("node_example.json")
 	if err != nil {
 		b.Fatalf("Unexpected error while reading file: %v", err)
 	}
@@ -159,7 +158,7 @@ func BenchmarkNodeCopy(b *testing.B) {
 }
 
 func BenchmarkReplicationControllerCopy(b *testing.B) {
-	data, err := ioutil.ReadFile("replication_controller_example.json")
+	data, err := os.ReadFile("replication_controller_example.json")
 	if err != nil {
 		b.Fatalf("Unexpected error while reading file: %v", err)
 	}

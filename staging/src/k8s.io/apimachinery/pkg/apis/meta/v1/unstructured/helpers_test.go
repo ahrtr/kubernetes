@@ -17,7 +17,6 @@ limitations under the License.
 package unstructured
 
 import (
-	"io/ioutil"
 	"sync"
 	"testing"
 
@@ -38,7 +37,7 @@ func TestCodecOfUnstructuredList(t *testing.T) {
 	for i := 0; i < concurrency; i++ {
 		go func() {
 			defer wg.Done()
-			assert.NoError(t, UnstructuredJSONScheme.Encode(&list, ioutil.Discard))
+			assert.NoError(t, UnstructuredJSONScheme.Encode(&list, io.Discard))
 		}()
 	}
 	wg.Wait()

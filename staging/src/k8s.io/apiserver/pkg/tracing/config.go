@@ -18,7 +18,6 @@ package tracing
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"strings"
 
@@ -47,7 +46,7 @@ func ReadTracingConfiguration(configFilePath string) (*apiserver.TracingConfigur
 	if configFilePath == "" {
 		return nil, fmt.Errorf("tracing config file was empty")
 	}
-	data, err := ioutil.ReadFile(configFilePath)
+	data, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read tracing configuration from %q: %v", configFilePath, err)
 	}
