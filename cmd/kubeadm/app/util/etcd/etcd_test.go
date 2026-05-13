@@ -18,7 +18,9 @@ package etcd
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"testing"
@@ -26,6 +28,8 @@ import (
 
 	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
+
+	"k8s.io/klog/v2"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,6 +43,10 @@ import (
 )
 
 var errNotImplemented = errors.New("not implemented")
+
+func init() {
+	klog.InitFlags(flag.CommandLine)
+}
 
 type fakeEtcdClient struct {
 	members   []*pb.Member
@@ -822,4 +830,73 @@ func TestGetMemberStatus(t *testing.T) {
 			}
 		})
 	}
+}
+
+func newClient(endpoints []string) (*Client, error) {
+	client := Client{Endpoints: endpoints}
+
+	client.newEtcdClient = func(endpoints []string) (etcdClient, error) {
+		return clientv3.New(clientv3.Config{
+			Endpoints:   endpoints,
+			DialTimeout: etcdTimeout,
+			/*DialOptions: []grpc.DialOption{
+				grpc.WithBlock(), // block until the underlying connection is up
+			},*/
+		})
+	}
+
+	client.listMembersFunc = client.listMembers
+
+	return &client, nil
+}
+
+func getLearnerMember(endpoints []string) (*clientv3.Member, error) {
+	c, err := clientv3.New(clientv3.Config{
+		Endpoints: endpoints,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.MemberList(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, m := range resp.Members {
+		if m.IsLearner {
+			return (*clientv3.Member)(m), nil
+		}
+	}
+
+	return nil, errors.New("no learner found")
+}
+
+func TestPromotion(t *testing.T) {
+	endpoints := []string{"http://10.167.249.40:2379"}
+
+	t.Log("Getting the learner member")
+	learner, err := getLearnerMember(endpoints)
+	if err != nil {
+		log.Fatalf("failed to get learner member: %v", err)
+	}
+	t.Logf("Got learner member, CLientURL %v", learner.ClientURLs)
+
+	endpoints = append(endpoints, learner.ClientURLs[0])
+	t.Logf("new endpoints: %v", endpoints)
+	t.Log("")
+
+	client, err := newClient(endpoints)
+	if err != nil {
+		log.Fatalf("failed to create client: %v", err)
+	}
+
+	t.Logf("Promoting learner member with ID %d and peer URL %s", learner.ID, learner.PeerURLs[0])
+
+	err = client.MemberPromote(learner.ID)
+	if err != nil {
+		log.Fatalf("failed to promote learner member: %v", err)
+	}
+
+	t.Log("Done")
 }

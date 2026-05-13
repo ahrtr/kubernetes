@@ -33,11 +33,12 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 
+	"k8s.io/klog/v2"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 
 	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
 	"k8s.io/kubernetes/cmd/kubeadm/app/constants"
@@ -297,6 +298,8 @@ func (c *Client) listMembersOnce() (*clientv3.MemberListResponse, error) {
 	if err == nil {
 		return resp, nil
 	}
+	isNotSupportedForLearner := errors.Is(err, rpctypes.ErrGRPCNotSupportedForLearner)
+	klog.V(5).Infof("Failed to get etcd member list: %v (errors.Is(err, ErrGRPCNotSupportedForLearner)=%t, errorDesc=%q)", err, isNotSupportedForLearner, rpctypes.ErrorDesc(err))
 	klog.V(5).Infof("Failed to get etcd member list: %v", err)
 	return nil, err
 }
